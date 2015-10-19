@@ -1,0 +1,30 @@
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd" version="EE-3.6.1">
+    <spring:beans>
+        <spring:bean id="property-placeholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <spring:property name="location" value="classpath:sftp.properties"/>
+        </spring:bean>
+    </spring:beans>
+ 
+    <!-- This placeholder bean lets you import the properties from the sftp.properties file. -->
+ 
+    <flow name="sftp_to_sftp_transport_example">
+        <sftp:inbound-endpoint host="${sftp.host}" port="${sftp.port}" path="/opt/pantha/sftp/xtr/sftp/incoming/" user="${sftp.user}" password="${sftp.password}" doc:name="SFTP">
+       		<file:filename-wildcard-filter pattern="*.txt,*.xml"/>
+        </sftp:inbound-endpoint>
+        <component class="com.xebia.xtr.sftp.SFTPConnectorExample" doc:name="Java">
+            <logging-interceptor/>
+        </component>
+        <sftp:outbound-endpoint host="${sftp.host}" port="${sftp.port}" user="${sftp.user}" password="${sftp.password}" path="/opt/pantha/sftp/xtr/sftp/outgoing/" 
+        	name="outboundEndpoint2" outputPattern="#[message.inboundProperties.originalFilename]" doc:name="SFTP">
+        </sftp:outbound-endpoint>
+        <logger level="INFO" doc:name="Logger" message="************** File successfully wrote with name #[message.inboundProperties.originalFilename]*****************"/>
+    </flow>
+</mule>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd">
+
+
+    <http:polling-connector name="PollingHttpConnector"
+        pollingFrequency="1000" reuseAddress="true" doc:name="HTTP Polling"/>
+    <http:connector name="HttpConnector" doc:name="HTTP-HTTPS"/>
+    
+    <flow name="http_pooling_example">
+        <http:inbound-endpoint host="localhost" port="10000" connector-ref="PollingHttpConnector" exchange-pattern="one-way" doc:name="HTTP">
+            <set-property propertyName="Accept" value="application/json" />
+        </http:inbound-endpoint>
+        <vm:outbound-endpoint exchange-pattern="one-way" path="toclient" doc:name="VM"/>
+    </flow>
+    
+    <flow name="pooled_http_location">
+        <inbound-endpoint address="http://localhost:10000"
+             connector-ref="HttpConnector" />
+        <message-properties-transformer doc:name="Content-Type">
+            <add-message-property key="Content-Type" value="application/json"/>
+        </message-properties-transformer>
+        <set-payload value='Test Pooled location is responding'/>
+    </flow>
+    
+</mule>
