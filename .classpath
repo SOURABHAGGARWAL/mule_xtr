@@ -9,5 +9,6 @@
 	<classpathentry kind="src" output="target/test-classes" path="src/test/resources"/>
 	<classpathentry kind="src" path="src/main/api"/>
 	<classpathentry kind="con" path="MULE_LIB/Amazon SQS/org.mule.tooling.ui.contribution.sqs.3.5.0"/>
+	<classpathentry kind="lib" path="/opt/pantha/mysql-connector-java-5.1.9.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

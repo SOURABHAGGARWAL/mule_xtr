@@ -3,5 +3,20 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.1"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
-http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+  <file:connector name="input" autoDelete="false" doc:name="File"/>
+  <file:connector name="output" doc:name="File"/>
+  <flow name="copyFile">
+    <file:inbound-endpoint connector-ref="input" path="/opt/pantha/sftp/xtr/file/incoming" doc:name="File"/>
+        <logger message="************************** INSIDE FILE TRASFER FLOW **********************" level="INFO" doc:name="Logger"/>
+        <component class="com.xebia.xtr.file.FileConnectorExample" doc:name="Java"/>
+    <file:outbound-endpoint connector-ref="output" path="/opt/pantha/sftp/xtr/file/outgoing" doc:name="File"/>
+  </flow>
+  
+</mule>
+
+
