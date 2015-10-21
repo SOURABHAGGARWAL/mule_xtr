@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ftp="http://www.mulesoft.org/schema/mule/ee/ftp" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/ftp http://www.mulesoft.org/schema/mule/ee/ftp/current/mule-ftp-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8089" doc:name="HTTP Listener Configuration"/>
+     <spring:beans>
+        <spring:bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" scope="singleton" />
+
+    <!--     <spring:bean
+            class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <spring:property name="targetObject" ref="jacksonObjectMapper" />
+            <spring:property name="targetMethod" value="configure" />
+            <spring:property name="arguments">
+                <spring:list>
+                    <spring:value>WRITE_NUMBERS_AS_STRINGS</spring:value>
+                    <spring:value>true</spring:value>
+                </spring:list>
+            </spring:property>
+        </spring:bean> -->
+    </spring:beans>
+    <http:request-config name="HTTP_Request_Configuration" doc:name="HTTP Request Configuration"/>
+    <flow name="muletutFlow-scopes">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test/test1" doc:name="HTTP"/>
+        <async doc:name="Async">
+            <logger message="Its async" level="INFO" doc:name="Logger"/>
+        </async>
+        <append-string-transformer message="Added the message" doc:name="Append String"/>
+    </flow>
+    <flow name="muletutFlow-composite">
+        <composite-source doc:name="Composite Source">
+            <http:listener config-ref="HTTP_Listener_Configuration" path="/comp1" doc:name="HTTP"/>
+        </composite-source>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="muletutFlow-foreach">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test/t2" doc:name="HTTP" >
+            <http:response-builder>
+                <http:header headerName="application" value=""/>
+            </http:response-builder>
+        </http:listener>
+        <component class="org.mule.transformers.ComponentForEach" doc:name="Java"/>
+        <response>
+            <logger level="INFO" doc:name="Logger"/>
+        </response>
+        <foreach doc:name="For Each">
+            <logger level="INFO" doc:name="Logger" message="data #[payload]"/>
+        </foreach>
+    </flow>
+    <flow name="muletutFlow-messageenricher">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test/message-enricher" doc:name="HTTP"/>
+        <response>
+            <enricher doc:name="Message Enricher">
+                <component class="org.mule.transformers.ComponentForEach" doc:name="Java"/>
+            </enricher>
+        </response>
+    </flow>
+    <flow name="muletutFlow-untilSuccessful">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test/untilSuccessful" doc:name="HTTP"/>
+        <until-successful maxRetries="5" doc:name="Until Successful">
+            
+        </until-successful>
+    </flow>
+</mule>
